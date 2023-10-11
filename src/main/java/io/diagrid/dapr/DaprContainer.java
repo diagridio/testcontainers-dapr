@@ -6,6 +6,8 @@ import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.Yaml;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -26,11 +28,11 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         }
     }
 
-    private static final int DAPRD_HTTP_PORT = 3500;
-    private static final int DAPRD_GRPC_PORT = 50001;
+    public static final int DAPRD_HTTP_PORT = 3500;
+    public static final int DAPRD_GRPC_PORT = 50001;
     private final Set<Component> components = new HashSet<>();
     private String appName;
-    private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
+    private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd:1.11.3");
 
     
     public DaprContainer(DockerImageName dockerImageName) {
@@ -71,8 +73,8 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     @Override
     protected void doStart() {
         if(components.isEmpty()){
-            components.add(new Component("statestore", "state.in-memory", Map.of()));
-            components.add(new Component("pubsub", "pubsub.in-memory", Map.of()));
+            components.add(new Component("statestore", "state.in-memory", Collections.emptyMap()));
+            components.add(new Component("pubsub", "pubsub.in-memory", Collections.emptyMap()));
         }
         super.doStart();
     }
@@ -81,31 +83,29 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     protected void configure() {
         super.configure();
         for (Component component : components) {
-            var yaml = new Yaml();
+            Yaml yaml = new Yaml();
+            
+            Map<String, Object> componentProps = new HashMap<>();
+            componentProps.put("apiVersion", "dapr.io/v1alpha1");
+            componentProps.put("kind", "Component");
 
-            String componentYaml = yaml.dump(
-                    Map.ofEntries(
-                            Map.entry("apiVersion", "dapr.io/v1alpha1"),
-                            Map.entry("kind", "Component"),
-                            Map.entry(
-                                    "metadata", Map.ofEntries(
-                                            Map.entry("name", component.name)
-                                    )
-                            ),
-                            Map.entry("spec", Map.ofEntries(
-                                    Map.entry("type", component.type),
-                                    Map.entry("version", "v1"),
-                                    Map.entry(
-                                            "metadata",
-                                            component.metadata.entrySet()
-                                                    .stream()
-                                                    .map(it -> Map.of("name", it.getKey(), "value", it.getValue()))
-                                                    .toList()
-                                    )
-                            ))
-                    )
-            );
+            Map<String, Object> componentMetadata = new HashMap<>();
+            componentMetadata.put("name", component.name);
+            componentProps.put("metadata", componentMetadata);
 
+            Map<String, Object> componentSpec = new HashMap<>();
+            componentSpec.put("type", component.type);
+            componentSpec.put("version", "v1");
+
+            Map<String, Object> componentSpecMetadata = new HashMap<>();
+            for(Map.Entry<String, String> entry : component.metadata.entrySet()){
+                componentSpecMetadata.put(entry.getKey(), entry.getValue());
+            }
+
+            componentSpec.put("metadata", componentSpecMetadata);
+            componentProps.put("spec", componentSpec);
+            String componentYaml = yaml.dump(componentProps);
+            
             withCopyToContainer(
                     Transferable.of(componentYaml), "/components/" + component.name + ".yaml"
             );
