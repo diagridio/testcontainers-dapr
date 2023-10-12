@@ -28,11 +28,11 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         }
     }
 
-    public static final int DAPRD_HTTP_PORT = 3500;
-    public static final int DAPRD_GRPC_PORT = 50001;
+    private static final int DAPRD_HTTP_PORT = 3500;
+    private static final int DAPRD_GRPC_PORT = 50001;
     private final Set<Component> components = new HashSet<>();
     private String appName;
-    private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd:1.11.3");
+    private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
 
     
     public DaprContainer(DockerImageName dockerImageName) {
@@ -52,7 +52,6 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     public DaprContainer(String image) {
         this(DockerImageName.parse(image));
-      
     }
 
     public DaprContainer withComponent(Component component) {
@@ -70,18 +69,23 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         return this;
     }
     
-    @Override
-    protected void doStart() {
-        if(components.isEmpty()){
-            components.add(new Component("statestore", "state.in-memory", Collections.emptyMap()));
-            components.add(new Component("pubsub", "pubsub.in-memory", Collections.emptyMap()));
-        }
-        super.doStart();
+    public String getHttpEndpoint() {
+        return "http://" + getHost() + ":" + getMappedPort(DAPRD_HTTP_PORT);
     }
+
+    public int getGRPCPort() {
+        return getMappedPort(DAPRD_GRPC_PORT);
+    }
+
 
     @Override
     protected void configure() {
         super.configure();
+        // if(components.isEmpty()){
+        //     components.add(new Component("statestore", "state.in-memory", Collections.emptyMap()));
+        //     components.add(new Component("pubsub", "pubsub.in-memory", Collections.emptyMap()));
+        // }
+
         for (Component component : components) {
             Yaml yaml = new Yaml();
             
