@@ -41,12 +41,6 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         
         // Use the daprd health endpoint to verify that daprd is running
         setWaitStrategy(Wait.forHttp("/v1.0/healthz").forPort(DAPRD_HTTP_PORT).forStatusCode(204));
-        withCommand(
-                "./daprd",
-                "-app-id", appName,
-                "--dapr-listen-addresses=0.0.0.0",
-                "-components-path", "/components"
-        );
         withExposedPorts(DAPRD_HTTP_PORT, DAPRD_GRPC_PORT);
     }
 
@@ -81,10 +75,17 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     @Override
     protected void configure() {
         super.configure();
-        // if(components.isEmpty()){
-        //     components.add(new Component("statestore", "state.in-memory", Collections.emptyMap()));
-        //     components.add(new Component("pubsub", "pubsub.in-memory", Collections.emptyMap()));
-        // }
+         withCommand(
+                "./daprd",
+                "-app-id", appName,
+                "--dapr-listen-addresses=0.0.0.0",
+                "-components-path", "/components"
+        );
+
+        if(components.isEmpty()){
+            components.add(new Component("statestore", "state.in-memory", Collections.emptyMap()));
+            components.add(new Component("pubsub", "pubsub.in-memory", Collections.emptyMap()));
+        }
 
         for (Component component : components) {
             Yaml yaml = new Yaml();
