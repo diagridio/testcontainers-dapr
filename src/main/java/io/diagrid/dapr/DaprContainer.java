@@ -94,7 +94,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             componentProps.put("apiVersion", "dapr.io/v1alpha1");
             componentProps.put("kind", "Component");
 
-            Map<String, Object> componentMetadata = new HashMap<>();
+            Map<String, String> componentMetadata = new HashMap<>();
             componentMetadata.put("name", component.name);
             componentProps.put("metadata", componentMetadata);
 
@@ -102,7 +102,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             componentSpec.put("type", component.type);
             componentSpec.put("version", "v1");
 
-            Map<String, Object> componentSpecMetadata = new HashMap<>();
+            Map<String, String> componentSpecMetadata = new HashMap<>();
             for(Map.Entry<String, String> entry : component.metadata.entrySet()){
                 componentSpecMetadata.put(entry.getKey(), entry.getValue());
             }

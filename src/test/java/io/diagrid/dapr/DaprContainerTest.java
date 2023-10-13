@@ -1,13 +1,14 @@
 package io.diagrid.dapr;
 import io.dapr.client.domain.State;
+
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 
-public class DaprContainerTests {
+
+public class DaprContainerTest {
 
     @ClassRule
     public static  DaprContainer daprContainer = new DaprContainer("daprio/daprd").withAppName("dapr-app");
@@ -15,8 +16,8 @@ public class DaprContainerTests {
     private String STATE_STORE_NAME = "statestore";
     private String KEY = "key";
 
-    @DynamicPropertySource
-    static void daprProperties(DynamicPropertyRegistry registry) {
+    @BeforeClass
+    public static void setDaprProperties() {
         System.setProperty("dapr.grpc.port", Integer.toString(daprContainer.getGRPCPort()));
     }
 
