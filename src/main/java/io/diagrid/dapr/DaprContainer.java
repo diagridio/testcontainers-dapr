@@ -9,6 +9,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -94,7 +95,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             componentProps.put("apiVersion", "dapr.io/v1alpha1");
             componentProps.put("kind", "Component");
 
-            Map<String, String> componentMetadata = new HashMap<>();
+            Map<String, String> componentMetadata = new LinkedHashMap<>();
             componentMetadata.put("name", component.name);
             componentProps.put("metadata", componentMetadata);
 
@@ -102,14 +103,11 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             componentSpec.put("type", component.type);
             componentSpec.put("version", "v1");
 
-            Map<String, String> componentSpecMetadata = new HashMap<>();
-            for(Map.Entry<String, String> entry : component.metadata.entrySet()){
-                componentSpecMetadata.put(entry.getKey(), entry.getValue());
+            if(!component.metadata.isEmpty()){
+                componentSpec.put("metadata", component.metadata);
             }
-
-            componentSpec.put("metadata", componentSpecMetadata);
             componentProps.put("spec", componentSpec);
-            String componentYaml = yaml.dump(componentProps);
+            String componentYaml = yaml.dumpAsMap(componentProps);
             
             withCopyToContainer(
                     Transferable.of(componentYaml), "/components/" + component.name + ".yaml"

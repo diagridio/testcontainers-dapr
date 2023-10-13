@@ -1,12 +1,17 @@
 package io.diagrid.dapr;
 import io.dapr.client.domain.State;
 
+import static org.junit.Assert.assertThat;
+
+import static org.junit.Assert.assertThat;
+
+
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
-
+import org.junit.Assert;
 
 public class DaprContainerTest {
 
@@ -26,15 +31,16 @@ public class DaprContainerTest {
 
         try (DaprClient client = (new DaprClientBuilder()).build()) {
         
+            String value = "value";
             // Save state
-            client.saveState(STATE_STORE_NAME, KEY, "value").block();
+            client.saveState(STATE_STORE_NAME, KEY, value).block();
 
-            // assertThat(response.body().jsonPath().getString("[0].Value"))
-            //     .isEqualTo(Base64.getEncoder().encodeToString("value123".getBytes(StandardCharsets.UTF_8)));
             
+            // Get the state back from the state store
             State<String> retrievedState = client.getState(STATE_STORE_NAME, KEY, String.class).block();
 
-            System.out.println("OK!");
+            Assert.assertEquals("The value retrieved should be the same as the one stored",value, retrievedState.getValue());
+
 
             
         }catch(Exception ex){
