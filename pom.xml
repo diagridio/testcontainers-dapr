@@ -26,21 +26,19 @@
 			<artifactId>spring-boot-testcontainers</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+    	</dependency>
+		<dependency>
             <groupId>io.dapr</groupId>
             <artifactId>dapr-sdk-springboot</artifactId>
             <version>1.9.0</version>
 			<scope>test</scope>
         </dependency>
 		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>rest-assured</artifactId>
-			<version>5.3.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-			<version>3.24.2</version>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
 			<scope>test</scope>
 		</dependency>
 		
