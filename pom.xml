@@ -8,7 +8,7 @@
 	<name>Testcontainers :: Dapr Module</name>
 	<description>Testcontainers :: Dapr Module</description>
 	<inceptionYear>2023</inceptionYear>
-
+	<url>https://github.com/diagridio/testcontainers-dapr</url>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -118,7 +118,6 @@
 									<copyright>2023 Diagrid.io</copyright>
 									<authors>Mauricio Salatino</authors>
 									<license>APACHE-2.0</license>
-									<url>https://diagrid.io</url>
 								</project>
                                 <signing>
                                     <active>ALWAYS</active>
