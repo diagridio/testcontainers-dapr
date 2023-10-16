@@ -7,8 +7,16 @@
 	<version>0.10.0</version>
 	<name>Testcontainers :: Dapr Module</name>
 	<description>Testcontainers :: Dapr Module</description>
+
 	<properties>
 		<java.version>8</java.version>
+		<snakeyaml.version>1.33</snakeyaml.version>
+		<testcontainers.version>1.19.1</testcontainers.version>
+		<daprsdk.version>1.10.0</daprsdk.version>
+		<logback-classic.version>1.4.11</logback-classic.version>
+		<maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+		<maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
+		<jreleaser.version>1.6.0</jreleaser.version>
 	</properties>
 	<distributionManagement>
 		<snapshotRepository>
@@ -24,23 +32,23 @@
 		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
-			<version>1.33</version>
+			<version>${snakeyaml.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
-			<version>1.19.1</version>
+			<version>${testcontainers.version}</version>
 		</dependency>
 		<dependency>
             <groupId>io.dapr</groupId>
             <artifactId>dapr-sdk-springboot</artifactId>
-            <version>1.10.0</version>
+            <version>${daprsdk.version}</version>
 			<scope>test</scope>
         </dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.4.11</version>
+			<version>${logback-classic.version}</version>
 			<scope>test</scope>
 		</dependency>
 		
@@ -79,7 +87,7 @@
                     <plugin>
                         <groupId>org.jreleaser</groupId>
                         <artifactId>jreleaser-maven-plugin</artifactId>
-                        <version>1.6.0</version>
+                        <version>${jreleaser.version}</version>
                         <configuration>
                             <jreleaser>
                                 <signing>
