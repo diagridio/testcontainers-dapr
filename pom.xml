@@ -90,13 +90,12 @@
                         <version>${jreleaser.version}</version>
                         <configuration>
                             <jreleaser>
-								<project>
-									<description>Dapr Testcontainer MOdule</description>
-									<copyright>2023 Diagrid.io</copyright>
-									<authors>Mauricio Salatino, Eddu Melendez</authors>
-									<license>APACHE-2.0</license>
-									<url>https://diagrid.io</url>
-								</project>
+				<project>
+		                    <description>Dapr Testcontainer MOdule</description>
+				    <copyright>2023 Diagrid.io</copyright>
+				    <authors>Mauricio Salatino, Eddu Melendez</authors>
+				    <license>APACHE-2.0</license>
+				</project>
                                 <signing>
                                     <active>ALWAYS</active>
                                     <armored>true</armored>
