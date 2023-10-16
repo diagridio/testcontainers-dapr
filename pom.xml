@@ -118,6 +118,7 @@
 									<copyright>2023 Diagrid.io</copyright>
 									<authors>Mauricio Salatino</authors>
 									<license>APACHE-2.0</license>
+									<url>https://diagrid.io</url>
 								</project>
                                 <signing>
                                     <active>ALWAYS</active>
