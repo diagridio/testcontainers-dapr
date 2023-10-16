@@ -7,7 +7,30 @@
 	<version>0.10.0</version>
 	<name>Testcontainers :: Dapr Module</name>
 	<description>Testcontainers :: Dapr Module</description>
-	<url>https://diagrid.io</url>
+	<inceptionYear>2023</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>author</id>
+            <name>Mauricio Salatino</name>
+            <email>salaboy@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/diagridio/testcontainers-dapr.git</connection>
+        <developerConnection>scm:git:https://github.com/diagridio/testcontainers-dapr.git</developerConnection>
+        <url>https://github.com/diagridio/testcontainers-dapr</url>
+        <tag>HEAD</tag>
+    </scm>
 	<properties>
 		<java.version>8</java.version>
 		<snakeyaml.version>1.33</snakeyaml.version>
@@ -90,12 +113,12 @@
                         <version>${jreleaser.version}</version>
                         <configuration>
                             <jreleaser>
-				<project>
-		                    <description>Dapr Testcontainer MOdule</description>
-				    <copyright>2023 Diagrid.io</copyright>
-				    <authors>Mauricio Salatino, Eddu Melendez</authors>
-				    <license>APACHE-2.0</license>
-				</project>
+								<project>
+									<description>Dapr Testcontainer MOdule</description>
+									<copyright>2023 Diagrid.io</copyright>
+									<authors>Mauricio Salatino</authors>
+									<license>APACHE-2.0</license>
+								</project>
                                 <signing>
                                     <active>ALWAYS</active>
                                     <armored>true</armored>
