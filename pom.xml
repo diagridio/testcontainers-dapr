@@ -7,7 +7,7 @@
 	<version>0.10.0</version>
 	<name>Testcontainers :: Dapr Module</name>
 	<description>Testcontainers :: Dapr Module</description>
-
+	<url>https://diagrid.io</url>
 	<properties>
 		<java.version>8</java.version>
 		<snakeyaml.version>1.33</snakeyaml.version>
@@ -95,6 +95,7 @@
 									<copyright>2023 Diagrid.io</copyright>
 									<authors>Mauricio Salatino, Eddu Melendez</authors>
 									<license>APACHE-2.0</license>
+									<url>https://diagrid.io</url>
 								</project>
                                 <signing>
                                     <active>ALWAYS</active>
