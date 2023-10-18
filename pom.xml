@@ -40,7 +40,7 @@
 		<logback-classic.version>1.4.11</logback-classic.version>
 		<maven-source-plugin.version>3.3.0</maven-source-plugin.version>
 		<maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
-		<jreleaser.version>1.6.0</jreleaser.version>
+		<jreleaser.version>1.8.0</jreleaser.version>
 	</properties>
 	<distributionManagement>
 		<snapshotRepository>
@@ -125,14 +125,8 @@
                                         <nexus2>
                                             <maven-central>
                                                 <active>ALWAYS</active>
-<<<<<<< Updated upstream
-                                                <url>https://oss.sonatype.org/service/local</url>
-                                                <snapshotUrl>https://oss.sonatype.org/content/repositories/snapshots/
-                                                </snapshotUrl>
-=======
                                                 <url>https://s01.oss.sonatype.org/service/local</url>
                                                 <snapshotUrl>https://s01.oss.sonatype.org/content/repositories/snapshots</snapshotUrl>
->>>>>>> Stashed changes
                                                 <closeRepository>true</closeRepository>
                                                 <releaseRepository>true</releaseRepository>
                                                 <stagingRepositories>target/staging-deploy</stagingRepositories>
