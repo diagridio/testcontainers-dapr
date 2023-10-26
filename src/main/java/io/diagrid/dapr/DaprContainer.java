@@ -64,6 +64,10 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         return this;
     }
     
+    public int getHTTPPort(){
+        return getMappedPort(DAPRD_HTTP_PORT);
+    }
+
     public String getHttpEndpoint() {
         return "http://" + getHost() + ":" + getMappedPort(DAPRD_HTTP_PORT);
     }
