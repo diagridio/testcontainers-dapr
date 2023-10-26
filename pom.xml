@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.diagrid.dapr</groupId>
 	<artifactId>testcontainers-dapr</artifactId>
-	<version>0.10.0</version>
+	<version>0.10.1</version>
 	<name>Testcontainers :: Dapr Module</name>
 	<description>Testcontainers :: Dapr Module</description>
 	<packaging>jar</packaging>
@@ -111,7 +111,7 @@
                         <configuration>
                             <jreleaser>
 								<project>
-									<description>Dapr Testcontainer MOdule</description>
+									<description>Dapr Testcontainer Module</description>
 									<copyright>2023 Diagrid.io</copyright>
 									<authors>Mauricio Salatino</authors>
 									<license>APACHE-2.0</license>
