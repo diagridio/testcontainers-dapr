@@ -45,6 +45,8 @@ public class DaprContainerTest {
     public void testStateStoreAPIs() throws Exception {
 
         try (DaprClient client = (new DaprClientBuilder()).build()) {
+            
+            client.waitForSidecar(5000);
 
             String value = "value";
             // Save state
@@ -65,7 +67,9 @@ public class DaprContainerTest {
         
 
         try (DaprClient client = (new DaprClientBuilder()).build()) {
-
+            
+            client.waitForSidecar(5000);
+            
             String message = "message content";
             // Save state
             client.publishEvent(

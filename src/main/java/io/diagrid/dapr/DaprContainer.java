@@ -57,8 +57,9 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         super(dockerImageName);
         dockerImageName.assertCompatibleWith(DEFAULT_IMAGE_NAME);
         
-        // Use the daprd health endpoint to verify that daprd is running
-        setWaitStrategy(Wait.forHttp("/v1.0/healthz").forPort(DAPRD_HTTP_PORT).forStatusCode(204));
+        // Here we don't want to wait for the Dapr sidecar to be ready, as the sidecar needs to 
+        //  connect with the application for susbcriptions
+        
         withExposedPorts(DAPRD_HTTP_PORT, DAPRD_GRPC_PORT);
     }
 
