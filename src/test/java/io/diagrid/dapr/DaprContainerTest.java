@@ -5,6 +5,7 @@ import io.dapr.client.domain.State;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.testcontainers.Testcontainers;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
@@ -38,6 +39,7 @@ public class DaprContainerTest {
     @BeforeClass
     public static void setDaprProperties() {
         configStub();
+        Testcontainers.exposeHostPorts(8081);
         System.setProperty("dapr.grpc.port", Integer.toString(daprContainer.getGRPCPort()));
     }
 
@@ -81,10 +83,10 @@ public class DaprContainerTest {
 
         }
 
-        // verify(anyRequestedFor(urlMatching("([a-z1-9]*)")));
+        verify(getRequestedFor(urlMatching("/dapr/config")));
 
-        // verify(postRequestedFor(urlEqualTo("/events"))
-        //     .withHeader("Content-Type", equalTo("application/json")));
+        verify(postRequestedFor(urlEqualTo("/events"))
+            .withHeader("Content-Type", equalTo("application/cloudevents+json")));
 
         
 
@@ -96,6 +98,11 @@ public class DaprContainerTest {
             .willReturn(aResponse()
             .withBody("[]")
             .withStatus(200)));  
+
+        stubFor(get(urlMatching("/dapr/config"))
+            .willReturn(aResponse()
+            .withBody("[]")
+            .withStatus(200)));      
   
         stubFor(any(urlMatching("/([a-z1-9]*)"))
             .willReturn(aResponse()
