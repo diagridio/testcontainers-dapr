@@ -15,6 +15,21 @@ import java.util.Set;
 
 public class DaprContainer extends GenericContainer<DaprContainer> {
 
+    public static class Subscription{
+        String name;
+        String pubsubName;
+        String topic;
+        String route;
+
+        public Subscription(String name, String pubsubName, String topic, String route){
+            this.name = name;
+            this.pubsubName = pubsubName;
+            this.topic = topic;
+            this.route = route;
+        }
+        
+    }
+
     public static class Component {
         String name;
 
@@ -32,7 +47,9 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     private static final int DAPRD_HTTP_PORT = 3500;
     private static final int DAPRD_GRPC_PORT = 50001;
     private final Set<Component> components = new HashSet<>();
+    private final Set<Subscription> subscriptions = new HashSet<>();
     private String appName;
+    private Integer appPort = 8080;
     private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
 
     
@@ -51,6 +68,11 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     public DaprContainer withComponent(Component component) {
         components.add(component);
+        return this;
+    }
+
+    public DaprContainer withAppPort(Integer port){
+        this.appPort = port;
         return this;
     }
 
@@ -84,6 +106,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "./daprd",
                 "-app-id", appName,
                 "--dapr-listen-addresses=0.0.0.0",
+                "--app-port", Integer.toString(appPort), 
                 "-components-path", "/components"
         );
 
@@ -92,9 +115,14 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             components.add(new Component("pubsub", "pubsub.in-memory", Collections.emptyMap()));
         }
 
+        if(subscriptions.isEmpty()){
+            subscriptions.add(new Subscription("local", "pubsub", "topic", "/events"));
+        }
+        
+        Yaml yaml = new Yaml();
+
         for (Component component : components) {
-            Yaml yaml = new Yaml();
-            
+                
             Map<String, Object> componentProps = new HashMap<>();
             componentProps.put("apiVersion", "dapr.io/v1alpha1");
             componentProps.put("kind", "Component");
@@ -115,6 +143,29 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             
             withCopyToContainer(
                     Transferable.of(componentYaml), "/components/" + component.name + ".yaml"
+            );
+        }
+
+        for(Subscription subscription : subscriptions){
+            
+            Map<String, Object> subscriptionProps = new HashMap<>();
+            subscriptionProps.put("apiVersion", "dapr.io/v1alpha1");
+            subscriptionProps.put("kind", "Subscription");
+
+            Map<String, String> subscriptionMetadata = new LinkedHashMap<>();
+            subscriptionMetadata.put("name", subscription.name);
+            subscriptionProps.put("metadata", subscriptionMetadata);
+
+            Map<String, Object> subscriptionSpec = new HashMap<>();
+            subscriptionSpec.put("pubsubname", subscription.pubsubName);
+            subscriptionSpec.put("topic", subscription.topic);
+            subscriptionSpec.put("route", subscription.route);
+            
+            subscriptionProps.put("spec", subscriptionSpec);
+
+            String subscriptionYaml = yaml.dumpAsMap(subscriptionProps);
+            withCopyToContainer(
+                    Transferable.of(subscriptionYaml), "/components/" + subscription.name + ".yaml"
             );
         }
 

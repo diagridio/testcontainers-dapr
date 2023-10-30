@@ -71,7 +71,12 @@
 			<version>${logback-classic.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+		<dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>3.0.1</version>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 	<profiles>
         <profile>
