@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.diagrid.dapr</groupId>
 	<artifactId>testcontainers-dapr</artifactId>
-	<version>0.10.2</version>
+	<version>0.10.3</version>
 	<name>Testcontainers :: Dapr Module</name>
 	<description>Testcontainers :: Dapr Module</description>
 	<packaging>jar</packaging>
@@ -41,6 +41,7 @@
 		<maven-source-plugin.version>3.3.0</maven-source-plugin.version>
 		<maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
 		<jreleaser.version>1.8.0</jreleaser.version>
+        <wiremock.version>3.0.1</wiremock.version>
 	</properties>
 	<distributionManagement>
 		<snapshotRepository>
@@ -74,7 +75,7 @@
 		<dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock</artifactId>
-            <version>3.0.1</version>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
 	</dependencies>
