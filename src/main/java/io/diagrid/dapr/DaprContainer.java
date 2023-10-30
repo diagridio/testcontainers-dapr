@@ -50,16 +50,18 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     private final Set<Subscription> subscriptions = new HashSet<>();
     private String appName;
     private Integer appPort = 8080;
+    private String appChannelAddress = "localhost";
     private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
 
     
     public DaprContainer(DockerImageName dockerImageName) {
         super(dockerImageName);
         dockerImageName.assertCompatibleWith(DEFAULT_IMAGE_NAME);
-        
+        // For susbcriptions the container needs to access the app channel
+        withAccessToHost(true);
         // Here we don't want to wait for the Dapr sidecar to be ready, as the sidecar needs to 
         //  connect with the application for susbcriptions
-        
+
         withExposedPorts(DAPRD_HTTP_PORT, DAPRD_GRPC_PORT);
     }
 
@@ -99,6 +101,10 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         return getMappedPort(DAPRD_GRPC_PORT);
     }
 
+    public DaprContainer withAppChannelAddress(String appChannelAddress){
+        this.appChannelAddress = appChannelAddress;
+        return this;
+    }
 
     @Override
     protected void configure() {
@@ -107,6 +113,8 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "./daprd",
                 "-app-id", appName,
                 "--dapr-listen-addresses=0.0.0.0",
+                "--app-protocol", "http",
+                "--app-channel-address", appChannelAddress,
                 "--app-port", Integer.toString(appPort), 
                 "-components-path", "/components"
         );

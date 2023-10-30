@@ -11,8 +11,6 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule; 
 import io.dapr.client.domain.Metadata;
 import static java.util.Collections.singletonMap;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -21,10 +19,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 public class DaprContainerTest {
 
     @ClassRule()
-    public static WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(9090)); 
+    public static WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8081)); 
 
     @ClassRule()
-    public static DaprContainer daprContainer = new DaprContainer("daprio/daprd").withAppName("dapr-app").withAppPort(9090);
+    public static DaprContainer daprContainer = new DaprContainer("daprio/daprd")
+                                                        .withAppName("dapr-app")
+                                                        .withAppPort(8081)
+                                                        .withAppChannelAddress("host.testcontainers.internal");
 
     private String STATE_STORE_NAME = "statestore";
     private String KEY = "my-key";
@@ -91,8 +92,12 @@ public class DaprContainerTest {
 
     private static void configStub() { 
         
+        stubFor(any(urlMatching("/dapr/subscribe"))
+            .willReturn(aResponse()
+            .withBody("[]")
+            .withStatus(200)));  
   
-        stubFor(any(urlMatching("/dapr/([a-z1-9]*)"))
+        stubFor(any(urlMatching("/([a-z1-9]*)"))
             .willReturn(aResponse()
             .withBody("[]")
             .withStatus(200)));  
@@ -103,7 +108,7 @@ public class DaprContainerTest {
             .withBody("event received!")
             .withStatus(200))); 
 
-        configureFor("localhost", 9090); 
+        configureFor("localhost", 8081); 
           
     } 
 
