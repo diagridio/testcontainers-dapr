@@ -49,6 +49,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     private final Set<Component> components = new HashSet<>();
     private final Set<Subscription> subscriptions = new HashSet<>();
     private String appName;
+    private Integer appPort = 8080;
     private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
 
     
@@ -67,6 +68,11 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     public DaprContainer withComponent(Component component) {
         components.add(component);
+        return this;
+    }
+
+    public DaprContainer withAppPort(Integer port){
+        this.appPort = port;
         return this;
     }
 
@@ -100,7 +106,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "./daprd",
                 "-app-id", appName,
                 "--dapr-listen-addresses=0.0.0.0",
-                "--app-port=9090",
+                "--app-port", Integer.toString(appPort), 
                 "-components-path", "/components"
         );
 
