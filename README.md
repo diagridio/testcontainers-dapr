@@ -8,7 +8,7 @@ To use this Testcontainer module from your Java application you can add the foll
 <dependency>
     <groupId>io.diagrid.dapr</groupId>
 	<artifactId>testcontainers-dapr</artifactId>
-	<version>1.10.0</version>
+	<version>0.10.x</version>
 </dependency>
 ```
 
