@@ -23,14 +23,14 @@ public class DaprComponentTest {
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setPrettyFlow(true);
 
-        Representer representer = new Representer(options);
+        Representer representer = new YamlRepresenter(options);
         representer.addClassTag(MetadataEntry.class, Tag.MAP);
         Yaml yaml = new Yaml(representer);
 
         DaprContainer dapr = new DaprContainer("daprio/daprd")
                                                         .withAppName("dapr-app")
                                                         .withAppPort(8081)
-                                                        .withComponent(new Component("statestore", "state.in-memory", Collections.singletonMap("actorStateStore", "true") ))
+                                                        .withComponent(new Component("statestore", "state.in-memory", Collections.singletonMap("actorStateStore", new QuotedBoolean("true"))))
                                                         .withAppChannelAddress("host.testcontainers.internal");
 
         Set<Component> components = dapr.getComponents();                                                        
@@ -47,7 +47,7 @@ public class DaprComponentTest {
                 "spec:\n" + 
                 "  metadata:\n" + 
                 "  - name: actorStateStore\n" +
-                "    value: 'true'\n" +
+                "    value: \"true\"\n" +
                 "  type: state.in-memory\n" +
                 "  version: v1\n";
 

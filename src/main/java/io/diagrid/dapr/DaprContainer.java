@@ -37,9 +37,9 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     public static class MetadataEntry {
         String name;
-        String value;
+        Object value;
 
-        public MetadataEntry(String name, String value) {
+        public MetadataEntry(String name, Object value) {
             this.name = name;
             this.value = value;
         }
@@ -52,7 +52,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             this.name = name;
         }
 
-        public String getValue() {
+        public Object getValue() {
             return value;
         }
 
@@ -70,12 +70,12 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
         List<MetadataEntry> metadata;
 
-        public Component(String name, String type, Map<String, String> metadata) {
+        public Component(String name, String type, Map<String, Object> metadata) {
             this.name = name;
             this.type = type;
             this.metadata = new ArrayList<MetadataEntry>();
             if (!metadata.isEmpty()) {
-                for (Map.Entry<String, String> entry : metadata.entrySet()) {
+                for (Map.Entry<String, Object> entry : metadata.entrySet()) {
                     this.metadata.add(new MetadataEntry(entry.getKey(), entry.getValue()));
                 }
             }
@@ -139,7 +139,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         return this;
     }
 
-    public DaprContainer withComponent(String name, String type, Map<String, String> metadata) {
+    public DaprContainer withComponent(String name, String type, Map<String, Object> metadata) {
         components.add(new Component(name, type, metadata));
         return this;
     }
@@ -224,7 +224,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setPrettyFlow(true);
 
-        Representer representer = new Representer(options);
+        Representer representer = new YamlRepresenter(options);
         representer.addClassTag(MetadataEntry.class, Tag.MAP);
         Yaml yaml = new Yaml(representer);
 
