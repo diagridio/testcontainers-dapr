@@ -1,7 +1,6 @@
 package io.diagrid.dapr;
 
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.DumperOptions;
@@ -102,6 +101,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     private String appName;
     private Integer appPort = 8080;
     private String appChannelAddress = "localhost";
+    private String placementService = "placement:50006";
     private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
 
     public DaprContainer(DockerImageName dockerImageName) {
@@ -131,6 +131,11 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     public DaprContainer withAppPort(Integer port) {
         this.appPort = port;
+        return this;
+    }
+
+    public DaprContainer withPlacementService(String placementService) {
+        this.placementService = placementService;
         return this;
     }
 
@@ -207,6 +212,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "-app-id", appName,
                 "--dapr-listen-addresses=0.0.0.0",
                 "--app-protocol", "http",
+                "-placement-host-address", placementService,
                 "--app-channel-address", appChannelAddress,
                 "--app-port", Integer.toString(appPort),
                 "-components-path", "/components");
