@@ -19,6 +19,10 @@ import java.util.ArrayList;
 
 public class DaprContainer extends GenericContainer<DaprContainer> {
 
+    public static enum DaprLogLevel{
+        error, warn, info, debug
+    }
+
     public static class Subscription {
         String name;
         String pubsubName;
@@ -100,6 +104,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     private final Set<Subscription> subscriptions = new HashSet<>();
     private String appName;
     private Integer appPort = 8080;
+    private DaprLogLevel daprLogLevel = DaprLogLevel.info;
     private String appChannelAddress = "localhost";
     private String placementService = "placement:50006";
     private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
@@ -154,6 +159,10 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     public DaprContainer withAppName(String appName) {
         this.appName = appName;
+        return this;
+    }
+    public DaprContainer withDaprLogLevel(DaprLogLevel daprLogLevel){
+        this.daprLogLevel = daprLogLevel;
         return this;
     }
 
@@ -233,6 +242,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "-placement-host-address", placementService,
                 "--app-channel-address", appChannelAddress,
                 "--app-port", Integer.toString(appPort),
+                "--log-level", daprLogLevel.toString(), 
                 "-components-path", "/components");
 
         if (components.isEmpty()) {
@@ -240,7 +250,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             components.add(new Component("pubsub", "pubsub.in-memory", Collections.emptyMap()));
         }
 
-        if (subscriptions.isEmpty()) {
+        if (subscriptions.isEmpty() && !components.isEmpty()) {
             subscriptions.add(new Subscription("local", "pubsub", "topic", "/events"));
         }
 
