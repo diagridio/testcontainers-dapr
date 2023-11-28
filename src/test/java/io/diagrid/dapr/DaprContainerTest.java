@@ -28,7 +28,7 @@ public class DaprContainerTest {
                                                         .withAppPort(8081)
                                                         .withAppChannelAddress("host.testcontainers.internal");
 
-    private String STATE_STORE_NAME = "statestore";
+    private String STATE_STORE_NAME = "kvstore";
     private String KEY = "my-key";
 
     private String PUBSUB_NAME = "pubsub";
@@ -43,6 +43,13 @@ public class DaprContainerTest {
         System.setProperty("dapr.grpc.port", Integer.toString(daprContainer.getGRPCPort()));
     }
 
+    @Test
+    public void testDaprContainerDefaults(){
+        Assert.assertEquals("The pubsub and kvstore component should be configured by default", 2,
+                    daprContainer.getComponents().size());             
+        Assert.assertEquals("A subscription should be configured by default if none is provided", 1,
+                    daprContainer.getSubscriptions().size());                    
+    }
 
     @Test
     public void testStateStoreAPIs() throws Exception {

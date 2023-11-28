@@ -103,6 +103,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     private String appChannelAddress = "localhost";
     private String placementService = "placement:50006";
     private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
+    private Yaml yaml;
 
     public DaprContainer(DockerImageName dockerImageName) {
         super(dockerImageName);
@@ -114,6 +115,14 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         // connect with the application for susbcriptions
 
         withExposedPorts(DAPRD_HTTP_PORT, DAPRD_GRPC_PORT);
+
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setPrettyFlow(true);
+
+        Representer representer = new YamlRepresenter(options);
+        representer.addClassTag(MetadataEntry.class, Tag.MAP);
+        this.yaml = new Yaml(representer);
     }
 
     public DaprContainer(String image) {
@@ -122,6 +131,10 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     public Set<Component> getComponents() {
         return components;
+    }
+
+    public Set<Subscription> getSubscriptions() {
+        return subscriptions;
     }
 
     public DaprContainer withComponent(Component component) {
@@ -141,6 +154,11 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     public DaprContainer withAppName(String appName) {
         this.appName = appName;
+        return this;
+    }
+
+    public DaprContainer withSubscription(String name, String pubSubName, String pubSubTopic, String route) {
+        subscriptions.add(new Subscription(name, pubSubName, pubSubTopic, route));
         return this;
     }
 
@@ -218,7 +236,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "-components-path", "/components");
 
         if (components.isEmpty()) {
-            components.add(new Component("statestore", "state.in-memory", Collections.emptyMap()));
+            components.add(new Component("kvstore", "state.in-memory", Collections.emptyMap()));
             components.add(new Component("pubsub", "pubsub.in-memory", Collections.emptyMap()));
         }
 
@@ -226,27 +244,48 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             subscriptions.add(new Subscription("local", "pubsub", "topic", "/events"));
         }
 
-        DumperOptions options = new DumperOptions();
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        options.setPrettyFlow(true);
-
-        Representer representer = new YamlRepresenter(options);
-        representer.addClassTag(MetadataEntry.class, Tag.MAP);
-        Yaml yaml = new Yaml(representer);
 
         for (Component component : components) {
-            Map<String, Object> componentMap = componentToMap(component);
-            String componentYaml = yaml.dumpAsMap(componentMap);
+            String componentYaml = componentToYAML(component);
             withCopyToContainer(
                     Transferable.of(componentYaml), "/components/" + component.name + ".yaml");
         }
 
         for (Subscription subscription : subscriptions) {
-            Map<String, Object> subscriptionMap = subscriptionToMap(subscription);
-            String subscriptionYaml = yaml.dumpAsMap(subscriptionMap);
+            String subscriptionYaml = subscriptionToYAML(subscription);
             withCopyToContainer(
                     Transferable.of(subscriptionYaml), "/components/" + subscription.name + ".yaml");
         }
 
+    }
+
+    public String subscriptionToYAML(Subscription subscription){
+        Map<String, Object> subscriptionMap = subscriptionToMap(subscription);
+        return yaml.dumpAsMap(subscriptionMap);
+    }
+
+    public String componentToYAML(Component component){
+        Map<String, Object> componentMap = componentToMap(component);
+        return yaml.dumpAsMap(componentMap);
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public Integer getAppPort() {
+        return appPort;
+    }
+
+    public String getAppChannelAddress() {
+        return appChannelAddress;
+    }
+
+    public String getPlacementService() {
+        return placementService;
+    }
+
+    public static DockerImageName getDefaultImageName() {
+        return DEFAULT_IMAGE_NAME;
     }
 }
