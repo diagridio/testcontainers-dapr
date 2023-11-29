@@ -37,7 +37,7 @@
 		<snakeyaml.version>1.33</snakeyaml.version>
 		<testcontainers.version>1.19.1</testcontainers.version>
 		<daprsdk.version>1.10.0</daprsdk.version>
-		<logback-classic.version>1.4.11</logback-classic.version>
+		<logback-classic.version>1.4.12</logback-classic.version>
 		<maven-source-plugin.version>3.3.0</maven-source-plugin.version>
 		<maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
 		<jreleaser.version>1.8.0</jreleaser.version>
