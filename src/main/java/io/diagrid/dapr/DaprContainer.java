@@ -100,7 +100,6 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     private static final int DAPRD_HTTP_PORT = 3500;
     private static final int DAPRD_GRPC_PORT = 50001;
-    private static final int DAPRD_INTERNAL_GRPC_PORT = 50002;
     private final Set<Component> components = new HashSet<>();
     private final Set<Subscription> subscriptions = new HashSet<>();
     private String appName;
@@ -120,7 +119,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         // needs to
         // connect with the application for susbcriptions
 
-        withExposedPorts(DAPRD_HTTP_PORT, DAPRD_GRPC_PORT, DAPRD_INTERNAL_GRPC_PORT);
+        withExposedPorts(DAPRD_HTTP_PORT, DAPRD_GRPC_PORT);
 
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
@@ -240,9 +239,8 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "-app-id", appName,
                 "--dapr-listen-addresses=0.0.0.0",
                 "--app-protocol", "http",
-                "--internal-grpc-port", DAPRD_INTERNAL_GRPC_PORT,
                 "-placement-host-address", placementService,
-                "--dapr-internal-grpc-port", appChannelAddress,
+                "--app-channel-address", appChannelAddress,
                 "--app-port", Integer.toString(appPort),
                 "--log-level", daprLogLevel.toString(), 
                 "-components-path", "/components");

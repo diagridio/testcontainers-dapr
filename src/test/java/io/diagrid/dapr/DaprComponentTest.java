@@ -5,13 +5,7 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
-
 import io.diagrid.dapr.DaprContainer.Component;
-import io.diagrid.dapr.DaprContainer.MetadataEntry;
 import io.diagrid.dapr.DaprContainer.Subscription;
 
 public class DaprComponentTest {
