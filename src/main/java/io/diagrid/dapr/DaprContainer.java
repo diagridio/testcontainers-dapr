@@ -8,18 +8,14 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 
 public class DaprContainer extends GenericContainer<DaprContainer> {
 
-    public static enum DaprLogLevel{
+    public static enum DaprLogLevel {
         error, warn, info, debug
     }
 
@@ -63,7 +59,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             this.value = value;
         }
 
-        
+
     }
 
     public static class Component {
@@ -82,6 +78,12 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                     this.metadata.add(new MetadataEntry(entry.getKey(), entry.getValue()));
                 }
             }
+        }
+
+        public Component(String name, String type, List<MetadataEntry> metadataEntries) {
+            this.name = name;
+            this.type = type;
+            metadata = Objects.requireNonNull(metadataEntries);
         }
 
         public String getName() {
@@ -161,7 +163,8 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         this.appName = appName;
         return this;
     }
-    public DaprContainer withDaprLogLevel(DaprLogLevel daprLogLevel){
+
+    public DaprContainer withDaprLogLevel(DaprLogLevel daprLogLevel) {
         this.daprLogLevel = daprLogLevel;
         return this;
     }
@@ -171,8 +174,38 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         return this;
     }
 
-    public DaprContainer withComponent(String name, String type, Map<String, Object> metadata) {
-        components.add(new Component(name, type, metadata));
+    public DaprContainer withComponent(String name, String type, List<MetadataEntry> metadataEntries) {
+        components.add(new Component(name, type, metadataEntries));
+        return this;
+    }
+
+    public DaprContainer withComponent(Path path) {
+        try {
+            Map<String, Object> component = this.yaml.loadAs(
+                    Files.newInputStream(path),
+                    Map.class
+            );
+
+            String type = (String) component.get("type");
+            Map<String, Object> metadata = (Map<String, Object>) component.get("metadata");
+            String name = (String) metadata.get("name");
+
+            Map<String, Object> spec = (Map<String, Object>) component.get("spec");
+
+            List<Map<String, Object>> specMetadata = (List<Map<String, Object>>) spec.getOrDefault("metadata", Collections.emptyMap());
+
+            ArrayList<MetadataEntry> metadataEntries = new ArrayList<>();
+
+            for (Map<String, Object> specMetadataItem : specMetadata) {
+                for (Map.Entry<String, Object> metadataItem : specMetadataItem.entrySet()) {
+                    metadataEntries.add(new MetadataEntry(metadataItem.getKey(), metadataItem.getValue()));
+                }
+            }
+
+            return withComponent(name, type, metadataEntries);
+        } catch (IOException e) {
+            logger().warn("Error while reading component from {}", path.toAbsolutePath());
+        }
         return this;
     }
 
@@ -242,7 +275,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "-placement-host-address", placementService,
                 "--app-channel-address", appChannelAddress,
                 "--app-port", Integer.toString(appPort),
-                "--log-level", daprLogLevel.toString(), 
+                "--log-level", daprLogLevel.toString(),
                 "-components-path", "/components");
 
         if (components.isEmpty()) {
@@ -269,12 +302,12 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     }
 
-    public String subscriptionToYAML(Subscription subscription){
+    public String subscriptionToYAML(Subscription subscription) {
         Map<String, Object> subscriptionMap = subscriptionToMap(subscription);
         return yaml.dumpAsMap(subscriptionMap);
     }
 
-    public String componentToYAML(Component component){
+    public String componentToYAML(Component component) {
         Map<String, Object> componentMap = componentToMap(component);
         return yaml.dumpAsMap(componentMap);
     }
