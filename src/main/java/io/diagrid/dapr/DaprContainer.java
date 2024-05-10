@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jetbrains.annotations.Nullable;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.DumperOptions;
@@ -23,7 +25,7 @@ import org.yaml.snakeyaml.representer.Representer;
 
 public class DaprContainer extends GenericContainer<DaprContainer> {
 
-    public static enum DaprLogLevel {
+    public enum DaprLogLevel {
         error, warn, info, debug
     }
 
@@ -119,6 +121,9 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     private String placementService = "placement:50006";
     private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
     private Yaml yaml;
+    private DaprPlacementContainer placementContainer;
+    private String placementDockerImageName = "daprio/placement";
+    private boolean shouldReusePlacement = false;
 
     public DaprContainer(DockerImageName dockerImageName) {
         super(dockerImageName);
@@ -275,6 +280,17 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     @Override
     protected void configure() {
         super.configure();
+
+        if (this.placementContainer == null) {
+            Network daprNetwork = Network.newNetwork();
+            this.placementContainer = new DaprPlacementContainer(this.placementDockerImageName)
+                    .withNetwork(daprNetwork)
+                    .withNetworkAliases("placement")
+                    .withReuse(this.shouldReusePlacement);
+            dependsOn(this.placementContainer);
+            withNetwork(daprNetwork);
+        }
+
         withCommand(
                 "./daprd",
                 "-app-id", appName,
@@ -339,4 +355,20 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     public static DockerImageName getDefaultImageName() {
         return DEFAULT_IMAGE_NAME;
     }
+
+    public DaprContainer withPlacementImage(String placementDockerImageName) {
+        this.placementDockerImageName = placementDockerImageName;
+        return this;
+    }
+
+    public DaprContainer withReusablePlacement(boolean reuse) {
+        this.shouldReusePlacement = shouldReusePlacement;
+        return this;
+    }
+
+    public DaprContainer withPlacementContainer(DaprPlacementContainer placementContainer) {
+        this.placementContainer = placementContainer;
+        return this;
+    }
+
 }
