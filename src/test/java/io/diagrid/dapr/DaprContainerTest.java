@@ -76,13 +76,14 @@ public class DaprContainerTest {
 
     @Test
     public void testPlacement() throws Exception {
-        RestAssured.baseURI = "http://" + daprContainer.getHost() + ":" + daprContainer.getMappedPort(3500);
-        boolean isPlacementConnected = RestAssured.given()
-                .get("/v1.0/metadata")
-                .jsonPath()
-                .getString("actorRuntime.placement")
-                .contentEquals("placement: connected");
-        assertTrue(isPlacementConnected);
+            RestAssured.baseURI = "http://" + daprContainer.getHost() + ":" + daprContainer.getMappedPort(3500);
+            String actorRuntimePlacement = RestAssured.given()
+                    .get("/v1.0/metadata")
+                    .jsonPath()
+                    .getString("actorRuntime.placement");
+            boolean isPlacementConnected = actorRuntimePlacement.contentEquals("placement: connected");
+            assertTrue(isPlacementConnected);
+         
     }
 
     @Test
