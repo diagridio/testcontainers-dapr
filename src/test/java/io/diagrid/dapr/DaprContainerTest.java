@@ -2,6 +2,7 @@ package io.diagrid.dapr;
 
 import io.dapr.client.domain.State;
 
+import io.restassured.RestAssured;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -16,13 +17,14 @@ import io.dapr.client.domain.Metadata;
 import static java.util.Collections.singletonMap;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.Assert.assertTrue;
 
 public class DaprContainerTest {
 
-    @ClassRule()
+    @ClassRule
     public static WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8081)); 
 
-    @ClassRule()
+    @ClassRule
     public static DaprContainer daprContainer = new DaprContainer("daprio/daprd")
                                                         .withAppName("dapr-app")
                                                         .withAppPort(8081)
@@ -70,6 +72,17 @@ public class DaprContainerTest {
 
         }
 
+    }
+
+    @Test
+    public void testPlacement() throws Exception {
+        RestAssured.baseURI = "http://" + daprContainer.getHost() + ":" + daprContainer.getMappedPort(3500);
+        boolean isPlacementConnected = RestAssured.given()
+                .get("/v1.0/metadata")
+                .jsonPath()
+                .getString("actorRuntime.placement")
+                .contentEquals("placement: connected");
+        assertTrue(isPlacementConnected);
     }
 
     @Test
