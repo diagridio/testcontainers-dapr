@@ -287,6 +287,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                     .withNetwork(daprNetwork)
                     .withNetworkAliases("placement")
                     .withReuse(this.shouldReusePlacement);
+            this.placementContainer.start();        
             dependsOn(this.placementContainer);
             withNetwork(daprNetwork);
         }
