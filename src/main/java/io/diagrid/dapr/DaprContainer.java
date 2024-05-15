@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.jetbrains.annotations.Nullable;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.images.builder.Transferable;
@@ -118,7 +117,8 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     private Integer appPort = 8080;
     private DaprLogLevel daprLogLevel = DaprLogLevel.info;
     private String appChannelAddress = "localhost";
-    private String placementService = "placement:50006";
+    private String placementService = "placement";
+    private Network daprNetwork = null;
     private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
     private Yaml yaml;
     private DaprPlacementContainer placementContainer;
@@ -157,10 +157,18 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         return subscriptions;
     }
 
+    
+
     public DaprContainer withComponent(Component component) {
         components.add(component);
         return this;
     }
+
+    public DaprContainer withNetwork(Network network){
+        this.daprNetwork = network;
+        return this;
+    }
+
 
     public DaprContainer withAppPort(Integer port) {
         this.appPort = port;
@@ -281,15 +289,17 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     protected void configure() {
         super.configure();
 
+        if(this.daprNetwork == null){
+            this.daprNetwork = Network.newNetwork();
+        }
         if (this.placementContainer == null) {
-            Network daprNetwork = Network.newNetwork();
             this.placementContainer = new DaprPlacementContainer(this.placementDockerImageName)
-                    .withNetwork(daprNetwork)
-                    .withNetworkAliases("placement")
+                    .withNetwork(this.daprNetwork)
+                    .withNetworkAliases(placementService)
                     .withReuse(this.shouldReusePlacement);
             this.placementContainer.start();        
             dependsOn(this.placementContainer);
-            withNetwork(daprNetwork);
+            withNetwork(this.daprNetwork);
         }
 
         withCommand(
@@ -297,7 +307,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "-app-id", appName,
                 "--dapr-listen-addresses=0.0.0.0",
                 "--app-protocol", "http",
-                "-placement-host-address", placementService,
+                "-placement-host-address", placementService + ":" + this.placementContainer.getMappedPort(50006),
                 "--app-channel-address", appChannelAddress,
                 "--app-port", Integer.toString(appPort),
                 "--log-level", daprLogLevel.toString(),
@@ -370,6 +380,10 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     public DaprContainer withPlacementContainer(DaprPlacementContainer placementContainer) {
         this.placementContainer = placementContainer;
         return this;
+    }
+
+    public void setNetwork(Network network) {
+        this.daprNetwork = network;
     }
 
 }
