@@ -307,7 +307,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "-app-id", appName,
                 "--dapr-listen-addresses=0.0.0.0",
                 "--app-protocol", "http",
-                "-placement-host-address", placementService + ":" + this.placementContainer.getMappedPort(50006),
+                "-placement-host-address", placementService + ":" + 50006,
                 "--app-channel-address", appChannelAddress,
                 "--app-port", Integer.toString(appPort),
                 "--log-level", daprLogLevel.toString(),
