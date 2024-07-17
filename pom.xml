@@ -33,6 +33,7 @@
         <tag>main</tag>
     </scm>
 	<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>8</java.version>
 		<snakeyaml.version>2.0</snakeyaml.version>
 		<testcontainers.version>1.19.1</testcontainers.version>
@@ -42,7 +43,6 @@
 		<maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
 		<jreleaser.version>1.8.0</jreleaser.version>
         <wiremock.version>3.0.1</wiremock.version>
-        <spotless.version>2.43.0</spotless.version>
 	</properties>
 	<distributionManagement>
 		<snapshotRepository>
@@ -90,30 +90,36 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <version>${spotless.version}</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <violationSeverity>warning</violationSeverity>
+                    <failOnViolation>true</failOnViolation>
+                    <failsOnError>true</failsOnError>
+                    <linkXRef>false</linkXRef>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                    </sourceDirectories>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>check</goal> <!-- To check formatting -->
-                            <goal>apply</goal> <!-- To automatically fix formatting -->
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <java>
-                        <includes>
-                            <include>src/main/java/**/*.java</include>
-                            <include>src/test/java/**/*.java</include>
-                        </includes>
-                        <palantirJavaFormat>
-                            <version>2.39.0</version>                     <!-- optional -->
-                            <style>PALANTIR</style>                       <!-- or AOSP/GOOGLE (optional) -->
-                            <formatJavadoc>false</formatJavadoc>          <!-- defaults to false (optional, requires at least Palantir 2.39.0) -->
-                        </palantirJavaFormat>
-                    </java>
-                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>8.37</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

@@ -30,109 +30,109 @@ import org.testcontainers.Testcontainers;
 
 public class DaprContainerTest {
 
-    @ClassRule
-    public static WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8081));
+  @ClassRule
+  public static WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8081));
 
-    @ClassRule
-    public static DaprContainer daprContainer = new DaprContainer("daprio/daprd")
-            .withAppName("dapr-app")
-            .withAppPort(8081)
-            .withAppChannelAddress("host.testcontainers.internal");
+  @ClassRule
+  public static DaprContainer daprContainer = new DaprContainer("daprio/daprd")
+      .withAppName("dapr-app")
+      .withAppPort(8081)
+      .withAppChannelAddress("host.testcontainers.internal");
 
-    private String STATE_STORE_NAME = "kvstore";
-    private String KEY = "my-key";
+  private final String STATE_STORE_NAME = "kvstore";
+  private final String KEY = "my-key";
 
-    private String PUBSUB_NAME = "pubsub";
-    private String PUBSUB_TOPIC_NAME = "topic";
-    // Time-to-live for messages published.
-    private static final String MESSAGE_TTL_IN_SECONDS = "1000";
+  private final String PUBSUB_NAME = "pubsub";
+  private final String PUBSUB_TOPIC_NAME = "topic";
+  // Time-to-live for messages published.
+  private static final String MESSAGE_TTL_IN_SECONDS = "1000";
 
-    @BeforeClass
-    public static void setDaprProperties() {
-        configStub();
-        Testcontainers.exposeHostPorts(8081);
-        System.setProperty("dapr.grpc.port", Integer.toString(daprContainer.getGRPCPort()));
+  @BeforeClass
+  public static void setDaprProperties() {
+    configStub();
+    Testcontainers.exposeHostPorts(8081);
+    System.setProperty("dapr.grpc.port", Integer.toString(daprContainer.getGrpcPort()));
+  }
+
+  @Test
+  public void testDaprContainerDefaults() {
+    Assert.assertEquals(
+        "The pubsub and kvstore component should be configured by default",
+        2,
+        daprContainer.getComponents().size());
+    Assert.assertEquals(
+        "A subscription should be configured by default if none is provided",
+        1,
+        daprContainer.getSubscriptions().size());
+  }
+
+  @Test
+  public void testStateStoreAPIs() throws Exception {
+
+    try (DaprClient client = (new DaprClientBuilder()).build()) {
+
+      client.waitForSidecar(5000);
+
+      String value = "value";
+      // Save state
+      client.saveState(STATE_STORE_NAME, KEY, value).block();
+
+      // Get the state back from the state store
+      State<String> retrievedState =
+          client.getState(STATE_STORE_NAME, KEY, String.class).block();
+
+      Assert.assertEquals(
+          "The value retrieved should be the same as the one stored", value, retrievedState.getValue());
+    }
+  }
+
+  @Test
+  public void testPlacement() throws Exception {
+    RestAssured.baseURI = "http://" + daprContainer.getHost() + ":" + daprContainer.getMappedPort(3500);
+    String actorRuntimePlacement =
+        RestAssured.given().get("/v1.0/metadata").jsonPath().getString("actorRuntime.placement");
+    boolean isPlacementConnected = actorRuntimePlacement.contentEquals("placement: connected");
+    assertTrue(isPlacementConnected);
+  }
+
+  @Test
+  public void testPubSubAPIs() throws Exception {
+
+    try (DaprClient client = (new DaprClientBuilder()).build()) {
+
+      client.waitForSidecar(5000);
+
+      String message = "message content";
+      // Save state
+      client.publishEvent(
+              PUBSUB_NAME,
+              PUBSUB_TOPIC_NAME,
+              message,
+              singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS))
+          .block();
     }
 
-    @Test
-    public void testDaprContainerDefaults() {
-        Assert.assertEquals(
-                "The pubsub and kvstore component should be configured by default",
-                2,
-                daprContainer.getComponents().size());
-        Assert.assertEquals(
-                "A subscription should be configured by default if none is provided",
-                1,
-                daprContainer.getSubscriptions().size());
-    }
+    verify(getRequestedFor(urlMatching("/dapr/config")));
 
-    @Test
-    public void testStateStoreAPIs() throws Exception {
+    verify(postRequestedFor(urlEqualTo("/events"))
+        .withHeader("Content-Type", equalTo("application/cloudevents+json")));
+  }
 
-        try (DaprClient client = (new DaprClientBuilder()).build()) {
+  private static void configStub() {
 
-            client.waitForSidecar(5000);
+    stubFor(any(urlMatching("/dapr/subscribe"))
+        .willReturn(aResponse().withBody("[]").withStatus(200)));
 
-            String value = "value";
-            // Save state
-            client.saveState(STATE_STORE_NAME, KEY, value).block();
+    stubFor(get(urlMatching("/dapr/config"))
+        .willReturn(aResponse().withBody("[]").withStatus(200)));
 
-            // Get the state back from the state store
-            State<String> retrievedState =
-                    client.getState(STATE_STORE_NAME, KEY, String.class).block();
+    stubFor(any(urlMatching("/([a-z1-9]*)"))
+        .willReturn(aResponse().withBody("[]").withStatus(200)));
 
-            Assert.assertEquals(
-                    "The value retrieved should be the same as the one stored", value, retrievedState.getValue());
-        }
-    }
+    // create a stub
+    stubFor(post(urlEqualTo("/events"))
+        .willReturn(aResponse().withBody("event received!").withStatus(200)));
 
-    @Test
-    public void testPlacement() throws Exception {
-        RestAssured.baseURI = "http://" + daprContainer.getHost() + ":" + daprContainer.getMappedPort(3500);
-        String actorRuntimePlacement =
-                RestAssured.given().get("/v1.0/metadata").jsonPath().getString("actorRuntime.placement");
-        boolean isPlacementConnected = actorRuntimePlacement.contentEquals("placement: connected");
-        assertTrue(isPlacementConnected);
-    }
-
-    @Test
-    public void testPubSubAPIs() throws Exception {
-
-        try (DaprClient client = (new DaprClientBuilder()).build()) {
-
-            client.waitForSidecar(5000);
-
-            String message = "message content";
-            // Save state
-            client.publishEvent(
-                            PUBSUB_NAME,
-                            PUBSUB_TOPIC_NAME,
-                            message,
-                            singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS))
-                    .block();
-        }
-
-        verify(getRequestedFor(urlMatching("/dapr/config")));
-
-        verify(postRequestedFor(urlEqualTo("/events"))
-                .withHeader("Content-Type", equalTo("application/cloudevents+json")));
-    }
-
-    private static void configStub() {
-
-        stubFor(any(urlMatching("/dapr/subscribe"))
-                .willReturn(aResponse().withBody("[]").withStatus(200)));
-
-        stubFor(get(urlMatching("/dapr/config"))
-                .willReturn(aResponse().withBody("[]").withStatus(200)));
-
-        stubFor(any(urlMatching("/([a-z1-9]*)"))
-                .willReturn(aResponse().withBody("[]").withStatus(200)));
-
-        // create a stub
-        stubFor(post(urlEqualTo("/events"))
-                .willReturn(aResponse().withBody("event received!").withStatus(200)));
-
-        configureFor("localhost", 8081);
-    }
+    configureFor("localhost", 8081);
+  }
 }
