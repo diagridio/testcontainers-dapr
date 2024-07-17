@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.images.builder.Transferable;
@@ -25,7 +24,10 @@ import org.yaml.snakeyaml.representer.Representer;
 public class DaprContainer extends GenericContainer<DaprContainer> {
 
     public enum DaprLogLevel {
-        error, warn, info, debug
+        error,
+        warn,
+        info,
+        debug
     }
 
     public static class Subscription {
@@ -40,7 +42,6 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             this.topic = topic;
             this.route = route;
         }
-
     }
 
     public static class MetadataEntry {
@@ -67,8 +68,6 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         public void setValue(String value) {
             this.value = value;
         }
-
-
     }
 
     public static class Component {
@@ -114,7 +113,6 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         public String getVersion() {
             return version;
         }
-
     }
 
     private static final int DAPRD_HTTP_PORT = 3500;
@@ -201,19 +199,16 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
     public DaprContainer withComponent(Path path) {
         try {
-            Map<String, Object> component = this.yaml.loadAs(
-                    Files.newInputStream(path),
-                    Map.class
-            );
+            Map<String, Object> component = this.yaml.loadAs(Files.newInputStream(path), Map.class);
 
             String type = (String) component.get("type");
             Map<String, Object> metadata = (Map<String, Object>) component.get("metadata");
             String name = (String) metadata.get("name");
-            
 
             Map<String, Object> spec = (Map<String, Object>) component.get("spec");
             String version = (String) spec.get("version");
-            List<Map<String, Object>> specMetadata = (List<Map<String, Object>>) spec.getOrDefault("metadata", Collections.emptyMap());
+            List<Map<String, Object>> specMetadata =
+                    (List<Map<String, Object>>) spec.getOrDefault("metadata", Collections.emptyMap());
 
             ArrayList<MetadataEntry> metadataEntries = new ArrayList<>();
 
@@ -289,7 +284,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
     protected void configure() {
         super.configure();
 
-        if(getNetwork() == null){
+        if (getNetwork() == null) {
             withNetwork(Network.newNetwork());
         }
         if (this.placementContainer == null) {
@@ -297,19 +292,26 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                     .withNetwork(getNetwork())
                     .withNetworkAliases(placementService)
                     .withReuse(this.shouldReusePlacement);
-            this.placementContainer.start();        
+            this.placementContainer.start();
         }
 
         withCommand(
                 "./daprd",
-                "-app-id", appName,
+                "-app-id",
+                appName,
                 "--dapr-listen-addresses=0.0.0.0",
-                "--app-protocol", "http",
-                "-placement-host-address", placementService + ":50006",
-                "--app-channel-address", appChannelAddress,
-                "--app-port", Integer.toString(appPort),
-                "--log-level", daprLogLevel.toString(),
-                "-components-path", "/components");
+                "--app-protocol",
+                "http",
+                "-placement-host-address",
+                placementService + ":50006",
+                "--app-channel-address",
+                appChannelAddress,
+                "--app-port",
+                Integer.toString(appPort),
+                "--log-level",
+                daprLogLevel.toString(),
+                "-components-path",
+                "/components");
 
         if (components.isEmpty()) {
             components.add(new Component("kvstore", "state.in-memory", "v1", Collections.emptyMap()));
@@ -320,19 +322,15 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             subscriptions.add(new Subscription("local", "pubsub", "topic", "/events"));
         }
 
-
         for (Component component : components) {
             String componentYaml = componentToYAML(component);
-            withCopyToContainer(
-                    Transferable.of(componentYaml), "/components/" + component.name + ".yaml");
+            withCopyToContainer(Transferable.of(componentYaml), "/components/" + component.name + ".yaml");
         }
 
         for (Subscription subscription : subscriptions) {
             String subscriptionYaml = subscriptionToYAML(subscription);
-            withCopyToContainer(
-                    Transferable.of(subscriptionYaml), "/components/" + subscription.name + ".yaml");
+            withCopyToContainer(Transferable.of(subscriptionYaml), "/components/" + subscription.name + ".yaml");
         }
-
     }
 
     public String subscriptionToYAML(Subscription subscription) {
@@ -379,5 +377,4 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         this.placementContainer = placementContainer;
         return this;
     }
-
 }

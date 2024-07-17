@@ -15,8 +15,7 @@ class YamlRepresenter extends Representer {
     private class RepresentQuotedBoolean implements Represent {
         public Node representData(Object data) {
             QuotedBoolean str = (QuotedBoolean) data;
-            return representScalar(
-                    Tag.STR, str.getValue(), DumperOptions.ScalarStyle.DOUBLE_QUOTED);
+            return representScalar(Tag.STR, str.getValue(), DumperOptions.ScalarStyle.DOUBLE_QUOTED);
         }
     }
 }

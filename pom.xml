@@ -42,6 +42,7 @@
 		<maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
 		<jreleaser.version>1.8.0</jreleaser.version>
         <wiremock.version>3.0.1</wiremock.version>
+        <spotless.version>2.43.0</spotless.version>
 	</properties>
 	<distributionManagement>
 		<snapshotRepository>
@@ -85,6 +86,38 @@
             <scope>test</scope>
         </dependency>
 	</dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal> <!-- To check formatting -->
+                            <goal>apply</goal> <!-- To automatically fix formatting -->
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <java>
+                        <includes>
+                            <include>src/main/java/**/*.java</include>
+                            <include>src/test/java/**/*.java</include>
+                        </includes>
+                        <palantirJavaFormat>
+                            <version>2.39.0</version>                     <!-- optional -->
+                            <style>PALANTIR</style>                       <!-- or AOSP/GOOGLE (optional) -->
+                            <formatJavadoc>false</formatJavadoc>          <!-- defaults to false (optional, requires at least Palantir 2.39.0) -->
+                        </palantirJavaFormat>
+                    </java>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 	<profiles>
         <profile>
             <id>release</id>
