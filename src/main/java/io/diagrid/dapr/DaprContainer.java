@@ -76,11 +76,14 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
         String type;
 
+        String version;
+
         List<MetadataEntry> metadata;
 
-        public Component(String name, String type, Map<String, Object> metadata) {
+        public Component(String name, String type, String version, Map<String, Object> metadata) {
             this.name = name;
             this.type = type;
+            this.version = version;
             this.metadata = new ArrayList<MetadataEntry>();
             if (!metadata.isEmpty()) {
                 for (Map.Entry<String, Object> entry : metadata.entrySet()) {
@@ -89,9 +92,10 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             }
         }
 
-        public Component(String name, String type, List<MetadataEntry> metadataEntries) {
+        public Component(String name, String type, String version, List<MetadataEntry> metadataEntries) {
             this.name = name;
             this.type = type;
+            this.version = version;
             metadata = Objects.requireNonNull(metadataEntries);
         }
 
@@ -105,6 +109,10 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
         public List<MetadataEntry> getMetadata() {
             return metadata;
+        }
+
+        public String getVersion() {
+            return version;
         }
 
     }
@@ -156,8 +164,6 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         return subscriptions;
     }
 
-    
-
     public DaprContainer withComponent(Component component) {
         components.add(component);
         return this;
@@ -188,8 +194,8 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
         return this;
     }
 
-    public DaprContainer withComponent(String name, String type, List<MetadataEntry> metadataEntries) {
-        components.add(new Component(name, type, metadataEntries));
+    public DaprContainer withComponent(String name, String type, String version, List<MetadataEntry> metadataEntries) {
+        components.add(new Component(name, type, version, metadataEntries));
         return this;
     }
 
@@ -203,9 +209,10 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
             String type = (String) component.get("type");
             Map<String, Object> metadata = (Map<String, Object>) component.get("metadata");
             String name = (String) metadata.get("name");
+            
 
             Map<String, Object> spec = (Map<String, Object>) component.get("spec");
-
+            String version = (String) spec.get("version");
             List<Map<String, Object>> specMetadata = (List<Map<String, Object>>) spec.getOrDefault("metadata", Collections.emptyMap());
 
             ArrayList<MetadataEntry> metadataEntries = new ArrayList<>();
@@ -216,7 +223,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 }
             }
 
-            return withComponent(name, type, metadataEntries);
+            return withComponent(name, type, version, metadataEntries);
         } catch (IOException e) {
             logger().warn("Error while reading component from {}", path.toAbsolutePath());
         }
@@ -251,7 +258,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
 
         Map<String, Object> componentSpec = new HashMap<>();
         componentSpec.put("type", component.type);
-        componentSpec.put("version", "v1");
+        componentSpec.put("version", component.version);
 
         if (!component.metadata.isEmpty()) {
             componentSpec.put("metadata", component.metadata);
@@ -305,8 +312,8 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
                 "-components-path", "/components");
 
         if (components.isEmpty()) {
-            components.add(new Component("kvstore", "state.in-memory", Collections.emptyMap()));
-            components.add(new Component("pubsub", "pubsub.in-memory", Collections.emptyMap()));
+            components.add(new Component("kvstore", "state.in-memory", "v1", Collections.emptyMap()));
+            components.add(new Component("pubsub", "pubsub.in-memory", "v1", Collections.emptyMap()));
         }
 
         if (subscriptions.isEmpty() && !components.isEmpty()) {

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 import io.diagrid.dapr.DaprContainer.Component;
 import io.diagrid.dapr.DaprContainer.Subscription;
 
@@ -20,7 +21,7 @@ public class DaprComponentTest {
         DaprContainer dapr = new DaprContainer("daprio/daprd")
                                                         .withAppName("dapr-app")
                                                         .withAppPort(8081)
-                                                        .withComponent(new Component("statestore", "state.in-memory", Collections.singletonMap("actorStateStore", new QuotedBoolean("true"))))
+                                                        .withComponent(new Component("statestore", "state.in-memory", "v1", Collections.singletonMap("actorStateStore", new QuotedBoolean("true"))))
                                                         .withAppChannelAddress("host.testcontainers.internal");
 
         Set<Component> components = dapr.getComponents();                                                        
