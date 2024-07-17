@@ -1,7 +1,22 @@
+/*
+ * Copyright 2024 The Dapr Authors
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package io.diagrid.dapr;
 
 import io.diagrid.dapr.DaprContainer.Component;
 import io.diagrid.dapr.DaprContainer.Subscription;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -9,14 +24,10 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 public class DaprComponentTest {
 
   @Test
   public void componentStateStoreSerializationTest() {
-
     DaprContainer dapr = new DaprContainer("daprio/daprd")
         .withAppName("dapr-app")
         .withAppPort(8081)
@@ -29,12 +40,12 @@ public class DaprComponentTest {
 
     Set<Component> components = dapr.getComponents();
     Assert.assertEquals(1, components.size());
+
     Component kvstore = components.iterator().next();
     Assert.assertEquals(false, kvstore.getMetadata().isEmpty());
 
     String componentYaml = dapr.componentToYaml(kvstore);
-
-    String expectedComponentYAML = "metadata:\n" + "  name: statestore\n"
+    String expectedComponentYaml = "metadata:\n" + "  name: statestore\n"
         + "apiVersion: dapr.io/v1alpha1\n"
         + "kind: Component\n"
         + "spec:\n"
@@ -44,7 +55,7 @@ public class DaprComponentTest {
         + "  type: state.in-memory\n"
         + "  version: v1\n";
 
-    Assert.assertEquals(expectedComponentYAML, componentYaml);
+    Assert.assertEquals(expectedComponentYaml, componentYaml);
   }
 
   @Test
@@ -58,23 +69,19 @@ public class DaprComponentTest {
     Set<Subscription> subscriptions = dapr.getSubscriptions();
     Assert.assertEquals(1, subscriptions.size());
 
-    String subscriptionYaml =
-        dapr.subscriptionToYaml(subscriptions.iterator().next());
-    System.out.println(subscriptionYaml);
-
-    String expectedSubscriptionYAML = "metadata:\n" + "  name: my-subscription\n"
+    String subscriptionYaml = dapr.subscriptionToYaml(subscriptions.iterator().next());
+    String expectedSubscriptionYaml = "metadata:\n" + "  name: my-subscription\n"
         + "apiVersion: dapr.io/v1alpha1\n"
         + "kind: Subscription\n"
         + "spec:\n"
         + "  route: /events\n"
         + "  pubsubname: pubsub\n"
         + "  topic: topic\n";
-    Assert.assertEquals(expectedSubscriptionYAML, subscriptionYaml);
+    Assert.assertEquals(expectedSubscriptionYaml, subscriptionYaml);
   }
 
   @Test
   public void withComponentFromPath() {
-
     URL stateStoreYaml = this.getClass().getClassLoader().getResource("components/statestore.yaml");
     Path path = Paths.get(stateStoreYaml.getPath());
 
@@ -90,8 +97,7 @@ public class DaprComponentTest {
     Assert.assertEquals(false, kvstore.getMetadata().isEmpty());
 
     String componentYaml = dapr.componentToYaml(kvstore);
-
-    String expectedComponentYAML = "metadata:\n" + //
+    String expectedComponentYaml = "metadata:\n" + //
         "  name: statestore\n"
         + //
         "apiVersion: dapr.io/v1alpha1\n"
@@ -132,6 +138,6 @@ public class DaprComponentTest {
         + //
         "";
 
-    Assert.assertEquals(expectedComponentYAML, componentYaml);
+    Assert.assertEquals(expectedComponentYaml, componentYaml);
   }
 }
