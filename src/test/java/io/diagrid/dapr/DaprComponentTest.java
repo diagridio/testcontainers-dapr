@@ -97,7 +97,8 @@ public class DaprComponentTest {
     Assert.assertEquals(false, kvstore.getMetadata().isEmpty());
 
     String componentYaml = dapr.componentToYaml(kvstore);
-    String expectedComponentYaml = "metadata:\n" + //
+    String expectedComponentYaml = "metadata:\n"
+        + //
         "  name: statestore\n"
         + //
         "apiVersion: dapr.io/v1alpha1\n"
