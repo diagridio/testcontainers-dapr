@@ -285,5 +285,7 @@
       <property name="checks" value="ImportOrder"/>
       <property name="message" value="^'java\..*'.*"/>
     </module>
+    <module name="SuppressWarningsHolder"/>
   </module>
+  <module name="SuppressWarningsFilter"/>
 </module>
