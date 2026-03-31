@@ -28,7 +28,7 @@ public class DaprComponentTest {
 
   @Test
   public void componentStateStoreSerializationTest() {
-    DaprContainer dapr = new DaprContainer("daprio/daprd")
+    DaprContainer dapr = new DaprContainer("daprio/daprd:1.17.2")
         .withAppName("dapr-app")
         .withAppPort(8081)
         .withComponent(new Component(
@@ -60,7 +60,7 @@ public class DaprComponentTest {
 
   @Test
   public void subscriptionSerializationTest() {
-    DaprContainer dapr = new DaprContainer("daprio/daprd")
+    DaprContainer dapr = new DaprContainer("daprio/daprd:1.17.2")
         .withAppName("dapr-app")
         .withAppPort(8081)
         .withSubscription("my-subscription", "pubsub", "topic", "/events")
@@ -85,7 +85,7 @@ public class DaprComponentTest {
     URL stateStoreYaml = this.getClass().getClassLoader().getResource("components/statestore.yaml");
     Path path = Paths.get(stateStoreYaml.getPath());
 
-    DaprContainer dapr = new DaprContainer("daprio/daprd")
+    DaprContainer dapr = new DaprContainer("daprio/daprd:1.17.2")
         .withAppName("dapr-app")
         .withAppPort(8081)
         .withComponent(path)
