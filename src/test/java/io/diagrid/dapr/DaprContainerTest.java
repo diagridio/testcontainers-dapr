@@ -57,7 +57,7 @@ public class DaprContainerTest {
   public static WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8081));
 
   @ClassRule
-  public static DaprContainer daprContainer = new DaprContainer("daprio/daprd")
+  public static DaprContainer daprContainer = new DaprContainer("daprio/daprd:1.17.3")
       .withAppName("dapr-app")
       .withAppPort(8081)
       .withAppChannelAddress("host.testcontainers.internal");
