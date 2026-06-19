@@ -21,7 +21,8 @@ import org.testcontainers.utility.DockerImageName;
  */
 public class DaprPlacementContainer extends GenericContainer<DaprPlacementContainer> {
 
-  private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/placement");
+  private static final String DEFAULT_DAPR_VERSION = "1.18.1";
+  private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/placement:" + DEFAULT_DAPR_VERSION);
   private int placementPort = 50006;
 
   /**
