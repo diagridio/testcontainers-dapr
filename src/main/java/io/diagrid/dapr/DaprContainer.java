@@ -163,7 +163,7 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
   private String appChannelAddress = "localhost";
   private String placementService = "placement";
   private static final DockerImageName DEFAULT_IMAGE_NAME = DockerImageName.parse("daprio/daprd");
-  private static final String DEFAULT_DAPR_VERSION = "1.18.0";
+  private static final String DEFAULT_DAPR_VERSION = "1.18.1";
   private Yaml yaml;
   private DaprPlacementContainer placementContainer;
   private String placementDockerImageName = "daprio/placement:" + DEFAULT_DAPR_VERSION;
