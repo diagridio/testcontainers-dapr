@@ -141,4 +141,21 @@ public class DaprComponentTest {
 
     Assert.assertEquals(expectedComponentYaml, componentYaml);
   }
+
+  @Test
+  public void withComponentFromPathNoMetadata() {
+    final URL componentYaml = this.getClass().getClassLoader().getResource("components/no-metadata-component.yaml");
+    final Path path = Paths.get(componentYaml.getPath());
+
+    final DaprContainer dapr = new DaprContainer("daprio/daprd")
+          .withAppName("dapr-app")
+          .withAppPort(8081)
+          .withComponent(path)
+          .withAppChannelAddress("host.testcontainers.internal");
+
+    final Set<Component> components = dapr.getComponents();
+    Assert.assertEquals(1, components.size());
+    final Component component = components.iterator().next();
+    Assert.assertEquals(true, component.getMetadata().isEmpty());
+  }
 }

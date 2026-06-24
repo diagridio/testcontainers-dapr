@@ -25,15 +25,7 @@ import org.yaml.snakeyaml.representer.Representer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class DaprContainer extends GenericContainer<DaprContainer> {
 
@@ -260,9 +252,13 @@ public class DaprContainer extends GenericContainer<DaprContainer> {
       Map<String, Object> spec = (Map<String, Object>) component.get("spec");
       String version = (String) spec.get("version");
       List<Map<String, Object>> specMetadata =
-          (List<Map<String, Object>>) spec.getOrDefault("metadata", Collections.emptyMap());
+          (List<Map<String, Object>>) spec.getOrDefault("metadata", Collections.emptyList());
 
       ArrayList<MetadataEntry> metadataEntries = new ArrayList<>();
+
+      if (specMetadata == null) {
+        return withComponent(name, type, version, metadataEntries);
+      }
 
       for (Map<String, Object> specMetadataItem : specMetadata) {
         for (Map.Entry<String, Object> metadataItem : specMetadataItem.entrySet()) {
