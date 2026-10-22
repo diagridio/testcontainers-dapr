@@ -20,7 +20,7 @@ import org.junit.Test;
 public class DaprPlacementContainerTest {
 
   @ClassRule
-  public static DaprPlacementContainer placement = new DaprPlacementContainer("daprio/placement:1.18.1");
+  public static DaprPlacementContainer placement = new DaprPlacementContainer("daprio/placement:1.19.0");
 
   @Test
   public void testDaprPlacementContainerDefaults() {
